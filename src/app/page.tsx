@@ -1,103 +1,321 @@
-import Image from "next/image";
+'use client';
+
+import { useState, useEffect } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { FussballData, FussballKindsData, FussballCompetitionsData } from '@/lib/types';
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [data, setData] = useState<FussballData | null>(null);
+  const [kindsData, setKindsData] = useState<FussballKindsData | null>(null);
+  const [competitionsData, setCompetitionsData] = useState<FussballCompetitionsData | null>(null);
+  const [selectedMandant, setSelectedMandant] = useState<string>('');
+  const [selectedSaison, setSelectedSaison] = useState<string>('');
+  const [selectedCompetitionType, setSelectedCompetitionType] = useState<string>('');
+  const [selectedMannschaftsart, setSelectedMannschaftsart] = useState<string>('');
+  const [selectedSpielklasse, setSelectedSpielklasse] = useState<string>('');
+  const [selectedGebiet, setSelectedGebiet] = useState<string>('');
+  const [selectedCompetition, setSelectedCompetition] = useState<string>('');
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://www.fussball.de/wam_base.json');
+        const jsonData = await response.json();
+        setData(jsonData);
+      } catch (error) {
+        console.error('Error fetching data:', error);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    const fetchKindsData = async () => {
+      if (selectedMandant && selectedSaison && selectedCompetitionType) {
+        const url = `https://www.fussball.de/wam_kinds${selectedMandant}${selectedSaison}${selectedCompetitionType}.json`;
+        console.log('Fetching kinds data from:', url);
+        try {
+          const response = await fetch(url);
+          const jsonData = await response.json();
+          setKindsData(jsonData);
+        } catch (error) {
+          console.error('Error fetching kinds data:', error);
+        }
+      }
+    };
+
+    fetchKindsData();
+  }, [selectedMandant, selectedSaison, selectedCompetitionType]);
+
+  useEffect(() => {
+    const fetchCompetitionsData = async () => {
+      if (selectedMandant && selectedSaison && selectedCompetitionType && 
+          selectedMannschaftsart && selectedSpielklasse && selectedGebiet) {
+        const url = `https://www.fussball.de/wam_competitions${selectedMandant}${selectedSaison}${selectedCompetitionType}${selectedMannschaftsart}${selectedSpielklasse}${selectedGebiet}.json`;
+        console.log('Fetching competitions data from:', url);
+        console.log('Selected values:', {
+          mandant: selectedMandant,
+          saison: selectedSaison,
+          competitionType: selectedCompetitionType,
+          mannschaftsart: selectedMannschaftsart,
+          spielklasse: selectedSpielklasse,
+          gebiet: selectedGebiet
+        });
+        try {
+          const response = await fetch(url);
+          const jsonData = await response.json();
+          setCompetitionsData(jsonData);
+        } catch (error) {
+          console.error('Error fetching competitions data:', error);
+        }
+      }
+    };
+
+    fetchCompetitionsData();
+  }, [selectedMandant, selectedSaison, selectedCompetitionType, 
+      selectedMannschaftsart, selectedSpielklasse, selectedGebiet]);
+
+  // Reset dependent dropdowns when parent selection changes
+  useEffect(() => {
+    setSelectedSaison('');
+    setSelectedCompetitionType('');
+    setSelectedMannschaftsart('');
+    setSelectedSpielklasse('');
+    setSelectedGebiet('');
+    setSelectedCompetition('');
+  }, [selectedMandant]);
+
+  useEffect(() => {
+    setSelectedCompetitionType('');
+    setSelectedMannschaftsart('');
+    setSelectedSpielklasse('');
+    setSelectedGebiet('');
+    setSelectedCompetition('');
+  }, [selectedSaison]);
+
+  useEffect(() => {
+    setSelectedMannschaftsart('');
+    setSelectedSpielklasse('');
+    setSelectedGebiet('');
+    setSelectedCompetition('');
+  }, [selectedCompetitionType]);
+
+  useEffect(() => {
+    setSelectedSpielklasse('');
+    setSelectedGebiet('');
+    setSelectedCompetition('');
+  }, [selectedMannschaftsart]);
+
+  useEffect(() => {
+    setSelectedGebiet('');
+    setSelectedCompetition('');
+  }, [selectedSpielklasse]);
+
+  useEffect(() => {
+    setSelectedCompetition('');
+  }, [selectedGebiet]);
+
+  const getMandantKey = (key: string) => key.replace('_', '');
+  const getSaisonKey = (key: string) => key.replace('_', '');
+  const getMannschaftsartKey = (key: string) => key.replace('_', '');
+  const getSpielklasseKey = (key: string) => key.replace('_', '');
+  const getGebietKey = (key: string) => key.replace('_', '');
+
+  return (
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
+      <Card className="w-[350px]">
+        <CardHeader>
+          <CardTitle>Wer pfeift wo?</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* First set of dropdowns */}
+            <div className="space-y-4">
+              {/* Mandant Dropdown */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Verband auswählen</label>
+                <Select value={selectedMandant} onValueChange={setSelectedMandant}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Verband auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {data?.Mandanten && Object.entries(data.Mandanten).map(([key, value]) => (
+                      <SelectItem key={key} value={key}>
+                        {value}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Saison Dropdown */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Saison auswählen</label>
+                <Select 
+                  value={selectedSaison} 
+                  onValueChange={setSelectedSaison}
+                  disabled={!selectedMandant}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Saison auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedMandant && data?.Saisons[getMandantKey(selectedMandant)] && 
+                      Object.entries(data.Saisons[getMandantKey(selectedMandant)]).map(([key, value]) => (
+                        <SelectItem key={key} value={key}>
+                          {value}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Competition Type Dropdown */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Wettbewerb auswählen</label>
+                <Select 
+                  value={selectedCompetitionType} 
+                  onValueChange={(value) => {
+                    setSelectedCompetitionType(value);
+                    console.log('Selected values:', {
+                      mandant: selectedMandant,
+                      saison: selectedSaison,
+                      competitionType: value
+                    });
+                  }}
+                  disabled={!selectedSaison}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Wettbewerb auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedMandant && selectedSaison && 
+                      data?.CompetitionTypes[getMandantKey(selectedMandant)]?.[getSaisonKey(selectedSaison)] &&
+                      Object.entries(data.CompetitionTypes[getMandantKey(selectedMandant)][getSaisonKey(selectedSaison)]).map(([key, value]) => (
+                        <SelectItem key={key} value={key}>
+                          {value}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Second set of dropdowns */}
+            <div className="space-y-4 pt-4 border-t">
+              {/* Mannschaftsart Dropdown */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Mannschaftsart auswählen</label>
+                <Select 
+                  value={selectedMannschaftsart} 
+                  onValueChange={setSelectedMannschaftsart}
+                  disabled={!selectedCompetitionType}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Mannschaftsart auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {kindsData?.Mannschaftsart && 
+                      Object.entries(kindsData.Mannschaftsart).map(([key, value]) => (
+                        <SelectItem key={key} value={key}>
+                          {value}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Spielklasse Dropdown */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Spielklasse auswählen</label>
+                <Select 
+                  value={selectedSpielklasse} 
+                  onValueChange={setSelectedSpielklasse}
+                  disabled={!selectedMannschaftsart}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Spielklasse auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedMannschaftsart && kindsData?.Spielklasse[getMannschaftsartKey(selectedMannschaftsart)] && 
+                      Object.entries(kindsData.Spielklasse[getMannschaftsartKey(selectedMannschaftsart)]).map(([key, value]) => (
+                        <SelectItem key={key} value={key}>
+                          {value}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Gebiet Dropdown */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Gebiet auswählen</label>
+                <Select 
+                  value={selectedGebiet} 
+                  onValueChange={(value) => {
+                    setSelectedGebiet(value);
+                    console.log('Selected Gebiet:', value);
+                  }}
+                  disabled={!selectedSpielklasse}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Gebiet auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedMannschaftsart && selectedSpielklasse && 
+                      kindsData?.Gebiet[getMannschaftsartKey(selectedMannschaftsart)]?.[getSpielklasseKey(selectedSpielklasse)] &&
+                      Object.entries(kindsData.Gebiet[getMannschaftsartKey(selectedMannschaftsart)][getSpielklasseKey(selectedSpielklasse)]).map(([key, value]) => (
+                        <SelectItem key={key} value={key}>
+                          {value}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Competition Dropdown */}
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Staffel auswählen</label>
+                <Select 
+                  value={selectedCompetition} 
+                  onValueChange={(value) => {
+                    setSelectedCompetition(value);
+                    console.log('Selected competition URL:', value);
+                  }}
+                  disabled={!selectedGebiet}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Staffel auswählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {selectedSpielklasse && selectedGebiet && 
+                      competitionsData?.[getSpielklasseKey(selectedSpielklasse)]?.[getGebietKey(selectedGebiet)] &&
+                      Object.entries(competitionsData[getSpielklasseKey(selectedSpielklasse)][getGebietKey(selectedGebiet)]).map(([url, name]) => (
+                        <SelectItem key={url} value={url}>
+                          {name}
+                        </SelectItem>
+                      ))
+                    }
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </main>
   );
 }
