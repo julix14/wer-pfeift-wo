@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { FussballData, FussballKindsData, FussballCompetitionsData } from '@/lib/types';
 
 export default function Home() {
@@ -128,6 +129,19 @@ export default function Home() {
   const getMannschaftsartKey = (key: string) => key.replace('_', '');
   const getSpielklasseKey = (key: string) => key.replace('_', '');
   const getGebietKey = (key: string) => key.replace('_', '');
+
+  const isFormComplete = selectedMandant && 
+    selectedSaison && 
+    selectedCompetitionType && 
+    selectedMannschaftsart && 
+    selectedSpielklasse && 
+    selectedGebiet && 
+    selectedCompetition;
+
+  const handleSubmit = () => {
+    const composedUrl = selectedCompetition.replace('_', '');
+    console.log('Composed URL:', composedUrl);
+  };
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-between p-24">
@@ -312,6 +326,16 @@ export default function Home() {
                   </SelectContent>
                 </Select>
               </div>
+            </div>
+            
+            <div className="pt-4">
+              <Button 
+                className="w-full" 
+                disabled={!isFormComplete}
+                onClick={handleSubmit}
+              >
+                Weiter
+              </Button>
             </div>
           </div>
         </CardContent>
