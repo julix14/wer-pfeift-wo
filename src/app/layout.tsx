@@ -10,6 +10,7 @@ import {
 import { Geist, Geist_Mono } from 'next/font/google'
 import Link from 'next/link'
 import './globals.css'
+import { Button } from '@/components/ui/button'
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -37,8 +38,12 @@ export default function RootLayout({
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <header className="flex justify-end items-center p-4 gap-4 h-16">
             <SignedOut>
-              <SignInButton />
-              <SignUpButton />
+              
+                <Button>
+                <Link href="/sign-in">
+                  Anmelden
+                </Link>
+              </Button>
             </SignedOut>
             <SignedIn>
               <Link 
